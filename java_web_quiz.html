@@ -1,0 +1,1265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Java Web Dev — Exam Practice</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0f14;
+    --surface: #161920;
+    --surface2: #1e2230;
+    --border: #2a2f40;
+    --accent: #5b8cff;
+    --accent2: #ff6b6b;
+    --green: #4ade80;
+    --red: #f87171;
+    --yellow: #fbbf24;
+    --text: #e8eaf0;
+    --muted: #6b7280;
+    --mono: 'Space Mono', monospace;
+    --sans: 'DM Sans', sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    min-height: 100vh;
+    line-height: 1.6;
+  }
+
+  /* ─── HOME ─── */
+  #home {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 2rem;
+    text-align: center;
+    background: radial-gradient(ellipse 80% 60% at 50% 0%, #1a2540 0%, var(--bg) 70%);
+  }
+
+  .home-badge {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.15em;
+    color: var(--accent);
+    border: 1px solid #2a3a60;
+    padding: 0.3rem 0.9rem;
+    border-radius: 2rem;
+    margin-bottom: 1.5rem;
+    background: #0f1628;
+  }
+
+  .home-title {
+    font-family: var(--mono);
+    font-size: clamp(2rem, 6vw, 3.5rem);
+    font-weight: 700;
+    line-height: 1.1;
+    margin-bottom: 1rem;
+    background: linear-gradient(135deg, #fff 30%, #5b8cff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .home-sub {
+    color: var(--muted);
+    font-size: 1rem;
+    max-width: 480px;
+    margin-bottom: 3rem;
+  }
+
+  .sets-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1rem;
+    width: 100%;
+    max-width: 860px;
+  }
+
+  .set-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.4rem 1.6rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: left;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .set-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--card-color, var(--accent));
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+
+  .set-card:hover {
+    border-color: var(--card-color, var(--accent));
+    transform: translateY(-2px);
+    background: var(--surface2);
+  }
+
+  .set-card:hover::before { opacity: 1; }
+
+  .set-card.completed::before { opacity: 1; }
+  .set-card.completed { border-color: #2a3a28; }
+
+  .set-num {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    color: var(--card-color, var(--accent));
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+  }
+
+  .set-title {
+    font-weight: 600;
+    font-size: 0.95rem;
+    margin-bottom: 0.3rem;
+  }
+
+  .set-meta {
+    font-size: 0.8rem;
+    color: var(--muted);
+  }
+
+  .set-score-badge {
+    position: absolute;
+    top: 1rem; right: 1rem;
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    background: #1e2a1a;
+    color: var(--green);
+    border: 1px solid #2a4024;
+  }
+
+  .ai-tag {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    padding: 0.1rem 0.4rem;
+    background: #1a1428;
+    border: 1px solid #3a2a50;
+    border-radius: 3px;
+    color: #a78bfa;
+    margin-left: 0.4rem;
+    vertical-align: middle;
+  }
+
+  /* ─── QUIZ ─── */
+  #quiz { display: none; min-height: 100vh; }
+
+  .quiz-header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: rgba(13,15,20,0.9);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: 0.9rem 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .back-btn {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    padding: 0.35rem 0.8rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+
+  .back-btn:hover { color: var(--text); border-color: var(--text); }
+
+  .quiz-title-bar {
+    flex: 1;
+    font-family: var(--mono);
+    font-size: 0.8rem;
+    color: var(--muted);
+  }
+
+  .progress-wrap {
+    flex: 2;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    min-width: 0;
+  }
+
+  .progress-bar {
+    flex: 1;
+    height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 2px;
+    transition: width 0.3s ease;
+  }
+
+  .progress-text {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+
+  .questions-container {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem 6rem;
+  }
+
+  .set-header {
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .set-header h2 {
+    font-family: var(--mono);
+    font-size: 1.2rem;
+    margin-bottom: 0.3rem;
+  }
+
+  .set-header p {
+    color: var(--muted);
+    font-size: 0.85rem;
+  }
+
+  .question-block {
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    transition: border-color 0.2s;
+  }
+
+  .question-block.answered { border-color: var(--border); }
+  .question-block.correct { border-color: #2a4a28; background: #0f1c0e; }
+  .question-block.incorrect { border-color: #4a1e1e; background: #1a0d0d; }
+
+  .q-number {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    color: var(--muted);
+    letter-spacing: 0.05em;
+    margin-bottom: 0.6rem;
+  }
+
+  .q-text {
+    font-size: 0.95rem;
+    font-weight: 500;
+    margin-bottom: 1.2rem;
+    line-height: 1.5;
+  }
+
+  .q-text code {
+    font-family: var(--mono);
+    background: var(--surface2);
+    padding: 0.1em 0.35em;
+    border-radius: 3px;
+    font-size: 0.9em;
+    color: #7dd3fc;
+  }
+
+  .options {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .option {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.15s;
+    background: var(--surface2);
+    font-size: 0.88rem;
+    line-height: 1.4;
+    text-align: left;
+    color: var(--text);
+    width: 100%;
+  }
+
+  .option:hover:not(:disabled) {
+    border-color: var(--accent);
+    background: #0f1628;
+  }
+
+  .option:disabled { cursor: default; }
+
+  .option.selected-correct {
+    background: #0e2016;
+    border-color: var(--green);
+    color: var(--green);
+  }
+
+  .option.selected-wrong {
+    background: #200e0e;
+    border-color: var(--red);
+    color: var(--red);
+  }
+
+  .option.show-correct {
+    background: #0e2016;
+    border-color: var(--green);
+    color: var(--green);
+  }
+
+  .opt-letter {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    min-width: 1.4rem;
+    height: 1.4rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid currentColor;
+    border-radius: 3px;
+    opacity: 0.7;
+    flex-shrink: 0;
+    margin-top: 0.05em;
+  }
+
+  .explanation {
+    display: none;
+    margin-top: 1rem;
+    padding: 0.9rem 1rem;
+    border-radius: 8px;
+    font-size: 0.83rem;
+    line-height: 1.6;
+    color: #c0c8d8;
+  }
+
+  .explanation.show { display: block; }
+  .explanation.correct-expl { background: #0a1a0a; border-left: 3px solid var(--green); }
+  .explanation.wrong-expl { background: #1a0a0a; border-left: 3px solid var(--red); }
+
+  .expl-header {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.08em;
+    margin-bottom: 0.5rem;
+    font-weight: 700;
+  }
+
+  .correct-expl .expl-header { color: var(--green); }
+  .wrong-expl .expl-header { color: var(--red); }
+
+  /* ─── BOTTOM BAR ─── */
+  .quiz-footer {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    background: rgba(13,15,20,0.95);
+    backdrop-filter: blur(12px);
+    border-top: 1px solid var(--border);
+    padding: 1rem 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    z-index: 40;
+  }
+
+  .footer-info {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    color: var(--muted);
+  }
+
+  .submit-btn {
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    padding: 0.65rem 1.8rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    transition: all 0.15s;
+  }
+
+  .submit-btn:hover { background: #7aa3ff; transform: translateY(-1px); }
+  .submit-btn:disabled { opacity: 0.4; cursor: default; transform: none; }
+
+  /* ─── RESULTS ─── */
+  #results { display: none; }
+
+  .results-wrap {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 3rem 1.5rem;
+    text-align: center;
+  }
+
+  .score-ring {
+    width: 140px;
+    height: 140px;
+    margin: 0 auto 2rem;
+    position: relative;
+  }
+
+  .score-ring svg {
+    transform: rotate(-90deg);
+  }
+
+  .score-number {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .score-big {
+    font-family: var(--mono);
+    font-size: 2rem;
+    font-weight: 700;
+    line-height: 1;
+  }
+
+  .score-label {
+    font-size: 0.7rem;
+    color: var(--muted);
+    margin-top: 0.2rem;
+  }
+
+  .results-title {
+    font-family: var(--mono);
+    font-size: 1.4rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .results-sub {
+    color: var(--muted);
+    margin-bottom: 2rem;
+    font-size: 0.9rem;
+  }
+
+  .results-actions {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    padding: 0.7rem 1.8rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    font-weight: 700;
+    transition: all 0.15s;
+  }
+
+  .btn-primary:hover { background: #7aa3ff; }
+
+  .btn-outline {
+    background: none;
+    color: var(--text);
+    border: 1px solid var(--border);
+    padding: 0.7rem 1.8rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    transition: all 0.15s;
+  }
+
+  .btn-outline:hover { border-color: var(--text); }
+
+  .wrong-list {
+    margin-top: 2.5rem;
+    text-align: left;
+  }
+
+  .wrong-list h3 {
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .wrong-item {
+    padding: 0.8rem;
+    border: 1px solid #4a1e1e;
+    border-radius: 8px;
+    margin-bottom: 0.6rem;
+    background: #140808;
+    font-size: 0.82rem;
+  }
+
+  .wrong-item-q {
+    font-weight: 500;
+    margin-bottom: 0.4rem;
+    line-height: 1.4;
+  }
+
+  .wrong-item-ans {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    color: var(--green);
+    margin-bottom: 0.4rem;
+  }
+
+  .wrong-item-expl {
+    color: var(--muted);
+    line-height: 1.5;
+  }
+
+  @media (max-width: 600px) {
+    .progress-wrap { display: none; }
+    .quiz-header { gap: 0.5rem; }
+    .sets-grid { grid-template-columns: 1fr; }
+    .home-title { font-size: 1.8rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HOME -->
+<section id="home">
+  <div class="home-badge">EXAM PRACTICE · 6 SETS · 120 QUESTIONS</div>
+  <h1 class="home-title">Java Web Dev<br>Practice Quiz</h1>
+  <p class="home-sub">Master JSP, Servlets, JSTL, JDBC, MVC & more. Pick a set and test your knowledge.</p>
+  <div class="sets-grid" id="setsGrid"></div>
+</section>
+
+<!-- QUIZ -->
+<section id="quiz">
+  <header class="quiz-header">
+    <button class="back-btn" onclick="goHome()">← HOME</button>
+    <div class="quiz-title-bar" id="quizTitleBar"></div>
+    <div class="progress-wrap">
+      <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+      <span class="progress-text" id="progressText">0 / 20</span>
+    </div>
+  </header>
+  <div class="questions-container">
+    <div class="set-header">
+      <h2 id="setTitle"></h2>
+      <p id="setDesc"></p>
+    </div>
+    <div id="questionsWrap"></div>
+  </div>
+  <div class="quiz-footer">
+    <div class="footer-info" id="footerInfo">Select answers above</div>
+    <button class="submit-btn" id="submitBtn" onclick="checkAnswers()" disabled>CHECK ANSWERS</button>
+  </div>
+</section>
+
+<!-- RESULTS -->
+<section id="results">
+  <header class="quiz-header">
+    <button class="back-btn" onclick="goHome()">← HOME</button>
+    <div class="quiz-title-bar" id="resultsTitleBar"></div>
+  </header>
+  <div class="results-wrap">
+    <div class="score-ring">
+      <svg width="140" height="140" viewBox="0 0 140 140">
+        <circle cx="70" cy="70" r="58" fill="none" stroke="#1e2230" stroke-width="10"/>
+        <circle id="scoreArc" cx="70" cy="70" r="58" fill="none" stroke="#4ade80" stroke-width="10"
+          stroke-linecap="round" stroke-dasharray="364" stroke-dashoffset="364"
+          style="transition: stroke-dashoffset 1s ease; stroke: var(--green)"/>
+      </svg>
+      <div class="score-number">
+        <div class="score-big" id="scoreBig">0/20</div>
+        <div class="score-label" id="scoreLabel">Score</div>
+      </div>
+    </div>
+    <h2 class="results-title" id="resultsTitle"></h2>
+    <p class="results-sub" id="resultsSub"></p>
+    <div class="results-actions">
+      <button class="btn-primary" onclick="retrySet()">RETRY SET</button>
+      <button class="btn-outline" onclick="goHome()">ALL SETS</button>
+    </div>
+    <div class="wrong-list" id="wrongList"></div>
+  </div>
+</section>
+
+<script>
+// ═══════════════════════════════════════════════
+// DATA
+// ═══════════════════════════════════════════════
+const SETS = [
+  { id: 0, title: "Set 1 — JSP & Java Basics",  desc: "Q1–Q20 · Declaration tags, JSTL, OOP, implicit objects", color: "#5b8cff", ai: false },
+  { id: 1, title: "Set 2 — Servlets & Sessions", desc: "Q21–Q40 · Cookies, RequestDispatcher, lifecycle, JDBC intro", color: "#ff6b6b", ai: false },
+  { id: 2, title: "Set 3 — JDBC & MVC",          desc: "Q41–Q60 · SQL, JDBC methods, MVC pattern, annotations", color: "#4ade80", ai: false },
+  { id: 3, title: "Set 4 — Full Review",          desc: "Q61–Q80 · Primary keys, session tracking, EL, scopes", color: "#fbbf24", ai: false },
+  { id: 4, title: "Set 5 — Extra Practice",       desc: "AI-generated · deeper coverage of core topics",          color: "#a78bfa", ai: true  },
+  { id: 5, title: "Set 6 — Challenge Round",      desc: "AI-generated · tricky exam-style questions",             color: "#38bdf8", ai: true  },
+];
+
+const Q = [
+// ── SET 1 (Q1-Q20) ──
+{q:"Which scriptlet tag is known as the declaration tag?",
+ opts:["<% %>","<%= %>","<%! %>","<%@ %>"],ans:2,
+ expl:"The <%! %> tag is the JSP declaration tag. It declares variables and methods that become part of the servlet class itself, outside the service() method. <% %> is the basic scriptlet, <%= %> is the expression tag, and <%@ %> is for directives."},
+{q:"What does JSTL stand for?",
+ opts:["Java Script Tag Library","Java Server Tag Library","Java Tag Library","Java Server Pages Standard Tag Library"],ans:3,
+ expl:"JSTL = Java Server Pages Standard Tag Library. It provides ready-made tags like <c:forEach> and <c:if> so you can avoid writing raw Java in JSP pages."},
+{q:"Which statement about a Java constructor is correct?",
+ opts:["Has return type","Must be same name as class name","Cannot have parameters","All of above"],ans:1,
+ expl:"A constructor must have the same name as the class. It has NO return type (not even void), and it CAN have parameters. It is automatically called when you use the 'new' keyword."},
+{q:"The main feature of Java is ____.",
+ opts:["Self callable","Object-oriented programming","Use of servlets","Non-Independent Platform"],ans:1,
+ expl:"Java's main celebrated feature is OOP (Object-Oriented Programming), where everything is organised as objects with properties and behaviours. Java is also platform-independent (Write Once, Run Anywhere), making option d also wrong."},
+{q:"Which JSP Action tags are used for bean development?",
+ opts:["jsp:setProperty","jsp:getProperty","jsp:useBean","All of the above"],ans:3,
+ expl:"All three JSP Action tags are used with JavaBeans. <jsp:useBean> creates/locates a bean; <jsp:setProperty> sets a bean property; <jsp:getProperty> retrieves a bean property."},
+{q:"What does a wrapper class in Java do?",
+ opts:["Wraps a primitive data type into an object","Bundle of external libraries","Bundle of classes and interfaces","Encapsulation"],ans:0,
+ expl:"Wrapper classes convert primitive types (int, double, char…) into objects. Integer wraps int, Double wraps double, etc. They're needed because Java collections like ArrayList can only store objects."},
+{q:"How many implicit objects are there in JSP?",
+ opts:["5","8","9","11"],ans:2,
+ expl:"There are exactly 9 JSP implicit objects: request, response, out, session, application, config, pageContext, page, and exception. The exception object is only available on error pages."},
+{q:"Which is the correct code to retrieve the absolute context path?",
+ opts:["response.contextPath()","request.contextPath()","request.getContextPath()","response.getContextPath()"],ans:2,
+ expl:"request.getContextPath() returns the base URL path of your web application (e.g., /myapp). The 'request' object holds all incoming HTTP data. Java getter methods start with 'get', so contextPath() alone doesn't exist."},
+{q:"Which method binds objects on HttpSession instances?",
+ opts:["getAttribute","setAttribute","getParameter","setParameter"],ans:1,
+ expl:"session.setAttribute(String name, Object value) stores an object in the session. Think of a session like a shopping cart: setAttribute puts items in and getAttribute takes them out. getParameter is for reading form field values from the request."},
+{q:"The main function of a servlet is to create ____.",
+ opts:["Dynamic webpage","Static webpage","Normal webpage","None of above"],ans:0,
+ expl:"A Servlet is a Java class that runs on the server and creates dynamic web pages — content that changes based on user input, database data, or other conditions (e.g., 'Welcome, John!' after login)."},
+{q:"A servlet file is navigated from ___.",
+ opts:["Absolute path","Relative path","urlPattern","Both a and b"],ans:2,
+ expl:"A servlet is accessed via a URL pattern defined in web.xml or using @WebServlet. For example, @WebServlet('/login') maps the servlet to the /login URL. Absolute and relative paths are for file access, not servlet navigation."},
+{q:"Which method is used to get a value from a form parameter?",
+ opts:["request.setParameter(String name)","request.setAttribute(name,obj)","request.getParameter(String name)","request.getAttribute(name,obj)"],ans:2,
+ expl:"request.getParameter(String name) reads a value from an HTML form or URL query string. 'set' methods store data, not retrieve it. getAttribute retrieves server-side attributes, not user-submitted form values."},
+{q:"Session is a component of SessionTracking used to keep track of client state on the server. True or False?",
+ opts:["True","False"],ans:0,
+ expl:"True. HTTP is stateless, so each request is independent. Session tracking solves this by maintaining state between requests using an HttpSession object stored on the server, linked to each user via a unique session ID."},
+{q:"Which RequestDispatcher method passes the same request/response to a different servlet?",
+ opts:["sendRedirect()","<a href=''>","forward()","Both a and c"],ans:2,
+ expl:"RequestDispatcher.forward() forwards the request server-side — the same request/response objects are passed and the browser URL doesn't change. sendRedirect() tells the browser to make a new request (URL changes)."},
+{q:"Which package(s) represent the Servlet API?",
+ opts:["Java.servlet","Javax.servlet","Javax.servlet.http","Both b and c"],ans:3,
+ expl:"Both packages are needed. javax.servlet has core interfaces (Servlet, ServletConfig, GenericServlet). javax.servlet.http has HTTP-specific classes (HttpServlet, HttpServletRequest, HttpServletResponse, HttpSession, Cookie)."},
+{q:"The life cycle of a servlet includes:",
+ opts:["init, service and destroy","init, service, forward and destroy","init, service, include and destroy","None of above"],ans:0,
+ expl:"The Servlet life cycle has three methods: init() (called once when first loaded for setup), service() (called per request, dispatches to doGet/doPost), and destroy() (called once for cleanup). forward() and include() belong to RequestDispatcher."},
+{q:"When does a filter's destroy() method get called?",
+ opts:["The filter's life cycle ends with a single call to destroy()","After doFilter() completes, destroy() is invoked","destroy() is only called once at the beginning","After the filter runs, destroy() is called"],ans:0,
+ expl:"A Filter's life cycle: init() is called once at start, doFilter() is called for every matching request, and destroy() is called exactly once at the end — when the web application is stopped or the filter is removed."},
+{q:"The servlet's init() method is loaded via a web server. True or False?",
+ opts:["True","False"],ans:0,
+ expl:"True. The web container (like Apache Tomcat) automatically calls init() when the servlet is first loaded. The developer does not call it manually. init() receives a ServletConfig object with the servlet's configuration."},
+{q:"The 'servlet-name' and 'servlet-class' in web.xml ____.",
+ opts:["must match","cannot be the same","might be the same","None of the above"],ans:2,
+ expl:"'servlet-name' is a logical alias (any name you choose); 'servlet-class' is the fully qualified Java class name. They might be the same if you use the class name as the alias, but they don't have to be."},
+{q:"A ServletConfig object is created for each ____.",
+ opts:["Servlet","Web Application","JavaServerPage","None of above"],ans:0,
+ expl:"A ServletConfig object is created by the container for each individual servlet with that servlet's specific init parameters. It is different from ServletContext, which is shared across the whole web application."},
+
+// ── SET 2 (Q21-Q40) ──
+{q:"Which of the following is NOT a JSP implicit object?",
+ opts:["Request","Response","Cookies","Exception"],ans:2,
+ expl:"JSP's 9 implicit objects are: request, response, out, session, application, config, pageContext, page, and exception. 'Cookies' is not one of them — you access cookies via request.getCookies()."},
+{q:"When running a SELECT query in JDBC, which method do you use?",
+ opts:["st.executeUpdate()","st.executeQuery()","st.runQuery()","st.getQuery()"],ans:1,
+ expl:"st.executeQuery() is used for SELECT statements and returns a ResultSet. st.executeUpdate() is for INSERT, UPDATE, and DELETE and returns an int (rows affected). runQuery() and getQuery() do not exist in JDBC."},
+{q:"Which ResultSet constant means it cannot be concurrently modified?",
+ opts:["CONCUR_UPDATABLE","CONCUR_READ_ONLY","Both a and b","None of the above"],ans:1,
+ expl:"CONCUR_READ_ONLY means you can read data from the ResultSet but cannot update the database through it. CONCUR_UPDATABLE allows programmatic updates through the ResultSet."},
+{q:"Which method sets an object in a JSP session?",
+ opts:["session.setAttribute(String,Object)","request.setAttribute(Object,String)","response.setAttribute(String,Object)","cookies.setAttribute(String,Object)"],ans:0,
+ expl:"session.setAttribute(String name, Object value) stores data in the session. 'session' is a JSP implicit object. You retrieve it later with session.getAttribute(name)."},
+{q:"Which package is used to implement JDBC?",
+ opts:["java.sql","javax.sql","java.jdbc.sql","javax.jdbc.sql"],ans:0,
+ expl:"java.sql is the primary JDBC package containing DriverManager, Connection, Statement, PreparedStatement, and ResultSet. javax.sql adds advanced features like DataSource and connection pooling."},
+{q:"PreparedStatement compiles the query only once, making the application faster. True or False?",
+ opts:["True","False"],ans:0,
+ expl:"True. PreparedStatement precompiles the SQL. For repeated executions with different parameters, the database reuses the compiled plan. This is faster than Statement (which recompiles every time) and also prevents SQL injection."},
+{q:"Which method retrieves a value from a session object in JSP?",
+ opts:["page.getAttribute(String name)","exception.getAttribute(String name)","session.getAttribute(String name)","response.getAttribute(String name)"],ans:2,
+ expl:"session.getAttribute(String name) retrieves session data. It returns an Object, so you may need to cast it: String user = (String) session.getAttribute('username')."},
+{q:"Which class serves as the JDBC architecture's foundation?",
+ opts:["JDBC driver test suite","JDBC bridge","JDBC driver manager","All of the above"],ans:2,
+ expl:"DriverManager is the JDBC backbone. It manages database drivers and creates connections. You use DriverManager.getConnection(url, user, pass) to establish a database connection."},
+{q:"What does <%= statement %> represent in JSP?",
+ opts:["Scriptlet tag","Expression tag","Declaration tag","None of above"],ans:1,
+ expl:"<%= %> is the JSP Expression tag. It evaluates a Java expression and outputs the result directly to the HTML — no semicolon needed inside. Compare with <% %> (scriptlet for Java code) and <%! %> (declaration)."},
+{q:"Which JSTL tag is used to iterate?",
+ opts:["<fn:iterate>","<c:iterate>","<fn:forEach>","<c:forEach>"],ans:3,
+ expl:"<c:forEach> is the JSTL Core looping tag. Example: <c:forEach var='item' items='${list}'>${item}</c:forEach>. The 'fn' prefix is for the JSTL Functions library (string operations), not looping."},
+{q:"Which JSTL tag library provides support for string manipulation?",
+ opts:["JSTL Formatting","JSTL Function","JSTL Query","JSTL String"],ans:1,
+ expl:"JSTL Functions (prefix: fn) provides string functions like fn:length(), fn:toUpperCase(), fn:toLowerCase(), fn:substring(), fn:contains(). JSTL Formatting (fmt) handles date/number formatting. 'JSTL Query' and 'JSTL String' don't exist."},
+{q:"Which implicit object retrieves request information like server name, server port, headers?",
+ opts:["Request","Response","Session","All of above"],ans:0,
+ expl:"The 'request' implicit object (HttpServletRequest) retrieves all incoming client info: parameters, headers, server name, server port, cookies, etc. 'response' sends data back; 'session' maintains user state."},
+{q:"Which code correctly creates a new session?",
+ opts:["Session session = new Session()","Session session = response.getSession()","HttpSession session = request.getSession()","HttpSession session = request.getSession(false)"],ans:2,
+ expl:"HttpSession session = request.getSession() creates a new session if none exists, or returns the existing one. HttpSession is an interface — you can't use 'new'. getSession(false) returns null if no session exists (doesn't create one)."},
+{q:"Which code sets age/expiry time on a session?",
+ opts:["setMaxAge()","setMaxInactiveInterval()","setSessionTimeOut()","Both a and b"],ans:1,
+ expl:"session.setMaxInactiveInterval(seconds) sets how long (in seconds) a session remains active after the last request. E.g., setMaxInactiveInterval(1800) = 30-min timeout. setMaxAge() is for cookies, not sessions."},
+{q:"Which implicit object is created by the web container for each JSP?",
+ opts:["Request","Response","Config","Exception"],ans:2,
+ expl:"The 'config' implicit object (ServletConfig) is created by the container for each individual JSP, providing access to its init parameters. request/response are per HTTP request; application is shared across all JSPs."},
+{q:"How do you correctly end a session in Java?",
+ opts:["session.setMaxAge(0)","session.endSession()","session.invalidate()","session.destroy()"],ans:2,
+ expl:"session.invalidate() destroys the session immediately, removing all stored data. Call it during logout. endSession() and destroy() don't exist on HttpSession. setMaxAge() belongs to Cookie."},
+{q:"Which of the following is NOT a JSP directive element?",
+ opts:["Page directive","Include directive","Taglib directive","Cookies directive"],ans:3,
+ expl:"JSP has exactly three directive elements (all using <%@ %>): Page directive, Include directive, and Taglib directive. There is no 'Cookies directive' — cookies are handled through request/response objects."},
+{q:"How do you retrieve an uploaded image from an HTML form in Java?",
+ opts:["Part imagePart = request.getPart(\"image\")","MultiPart imagePart = request.getMultiPart(\"image\")","MultiPart imagePart = request.getPart(\"image\")","String imagePart = request.getParameter(\"image\")"],ans:0,
+ expl:"request.getPart(String name) retrieves an uploaded file as a Part object (javax.servlet.http.Part). The servlet also needs the @MultipartConfig annotation. 'MultiPart' is not a valid Java type; use Part."},
+{q:"What is the correct code to get the current request URL in Java?",
+ opts:["response.getURI()","request.getURI()","response.getRequestURI()","request.getRequestURI()"],ans:3,
+ expl:"request.getRequestURI() returns the URL path of the incoming request (e.g., /myapp/login). The URL is part of the request — not the response. getURI() is not a servlet API method."},
+{q:"What is the default port number of MySQL database?",
+ opts:["8080","3306","80","127.0.0.1"],ans:1,
+ expl:"MySQL uses port 3306 by default. Port 8080 = Apache Tomcat; Port 80 = HTTP; Port 443 = HTTPS. 127.0.0.1 is the loopback IP address (localhost), not a port number."},
+
+// ── SET 3 (Q41-Q60) ──
+{q:"Which package contains the HttpServlet class?",
+ opts:["javax.servlet","javax.servlet.http","java.servlet.http","java.http.servlet"],ans:1,
+ expl:"HttpServlet lives in javax.servlet.http, which contains all HTTP-specific classes. javax.servlet has protocol-independent classes like GenericServlet. The other two options don't exist."},
+{q:"Which method handles GET requests in a servlet?",
+ opts:["doPost()","doGet()","service()","init()"],ans:1,
+ expl:"doGet() handles HTTP GET requests (browser URL, links, form method='get'). doPost() handles POST. service() receives all requests and dispatches to doGet/doPost. init() is for one-time initialization."},
+{q:"Which method handles POST requests in a servlet?",
+ opts:["doGet()","doPost()","destroy()","service()"],ans:1,
+ expl:"doPost() handles HTTP POST requests (form submissions with sensitive/large data). POST sends parameters in the request body — not visible in the URL, making it more secure for passwords and sensitive data."},
+{q:"Which object is used to send output to the browser in a servlet?",
+ opts:["PrintWriter","Scanner","BufferedReader","OutputStreamReader"],ans:0,
+ expl:"PrintWriter out = response.getWriter() gives you a PrintWriter to write HTML to the browser. Scanner reads input; BufferedReader reads character streams; OutputStreamReader converts byte to character streams. Only PrintWriter writes output."},
+{q:"Which annotation defines servlet URL mapping?",
+ opts:["@Servlet","@WebServlet","@URLServlet","@MappingServlet"],ans:1,
+ expl:"@WebServlet('/path') maps a servlet class to a URL, replacing web.xml configuration. Introduced in Servlet 3.0. You can map multiple URLs: @WebServlet(urlPatterns={'/hello','/hi'}). The other annotations don't exist."},
+{q:"JSP stands for:",
+ opts:["Java Servlet Pages","Java Server Pages","Java Source Pages","Java Script Pages"],ans:1,
+ expl:"JSP = Java Server Pages. It's a server-side technology for creating dynamic web pages using HTML mixed with Java. The web container converts a JSP into a Servlet before execution."},
+{q:"Which JSP tag(s) can include another file?",
+ opts:["<%@ include %>","<jsp:include>","Both a and b","None"],ans:2,
+ expl:"Both work. <%@ include file='...'%> is static (included at translation time, merged before compile). <jsp:include page='...' /> is dynamic (included at request time, more flexible). Both are valid."},
+{q:"Which symbol is used for JSP comments?",
+ opts:["<!-- -->","<%-- --%>","//","/* */"],ans:1,
+ expl:"<%-- comment --%> are JSP comments — fully removed before the response reaches the browser (invisible in page source). HTML comments <!-- --> ARE sent to the browser. // and /* */ are Java comments, usable inside scriptlets."},
+{q:"Which implicit object represents application scope?",
+ opts:["request","session","application","page"],ans:2,
+ expl:"The 'application' implicit object (ServletContext) represents application scope — data shared across ALL users and ALL pages. Scopes from smallest: page → request → session → application."},
+{q:"Which implicit object writes output in JSP?",
+ opts:["out","writer","print","response"],ans:0,
+ expl:"The 'out' implicit object (JspWriter) writes output to the browser in JSP — use out.println('Hello'). It's available by default without setup. 'writer' and 'print' are not implicit objects."},
+{q:"EL stands for:",
+ opts:["Expression Language","Extended Language","Execute Language","Expression Logic"],ans:0,
+ expl:"EL = Expression Language in JSP. It uses ${} syntax to access data without Java scriptlets. Instead of <%= request.getAttribute('user') %> you write ${user}. Cleaner and works well with JSTL."},
+{q:"What is the correct EL syntax?",
+ opts:["${name}","#{name}","<%=name%>","<%name%>"],ans:0,
+ expl:"${expression} is JSP EL syntax. #{name} is JSF (JavaServer Faces), a different framework. <%=name%> is old JSP expression tag. <%name%> is invalid. Always use ${} in JSP."},
+{q:"The JSTL core tag prefix is:",
+ opts:["<sql>","<fmt>","<c>","<fn>"],ans:2,
+ expl:"JSTL prefixes: 'c' = Core (if, forEach, set, out), 'fmt' = Formatting, 'sql' = SQL, 'fn' = Functions, 'x' = XML. To use Core: <%@ taglib prefix='c' uri='http://java.sun.com/jsp/jstl/core' %>."},
+{q:"Which JSTL tag is used for condition checking?",
+ opts:["<c:forEach>","<c:if>","<c:set>","<c:out>"],ans:1,
+ expl:"<c:if test='${condition}'> renders its body only if the condition is true. Note: unlike Java's if, JSTL's <c:if> has no else — use <c:choose>/<c:when>/<c:otherwise> for if-else."},
+{q:"Which JSTL tag prints a value?",
+ opts:["<c:print>","<c:display>","<c:out>","<c:value>"],ans:2,
+ expl:"<c:out value='${name}'/> displays a value and auto-escapes HTML special characters (<, >, &), preventing XSS attacks. <c:print>, <c:display>, <c:value> do not exist in JSTL."},
+{q:"Which JDBC method establishes a database connection?",
+ opts:["DriverManager.getConnection()","Connection.create()","Statement.connect()","JDBC.connect()"],ans:0,
+ expl:"DriverManager.getConnection(url, username, password) establishes a database connection and returns a Connection object. The URL format is like 'jdbc:mysql://localhost:3306/mydb'. The other methods don't exist."},
+{q:"Which interface executes SQL queries in JDBC?",
+ opts:["Connection","DriverManager","Statement","ResultSet"],ans:2,
+ expl:"Statement (and its sub-interface PreparedStatement) executes SQL. You get it from Connection: Statement st = con.createStatement(). Connection manages the connection; DriverManager creates connections; ResultSet holds SELECT results."},
+{q:"Which method executes an INSERT query?",
+ opts:["executeQuery()","executeUpdate()","runInsert()","insert()"],ans:1,
+ expl:"executeUpdate() handles INSERT, UPDATE, and DELETE — returns int (rows affected). executeQuery() is only for SELECT (returns ResultSet). runInsert() and insert() don't exist in JDBC."},
+{q:"Which SQL command retrieves data?",
+ opts:["INSERT","DELETE","SELECT","UPDATE"],ans:2,
+ expl:"SELECT retrieves data: SELECT * FROM students. INSERT adds rows, UPDATE modifies rows, DELETE removes rows. These four are the fundamental DML operations."},
+{q:"Which SQL command modifies existing data?",
+ opts:["UPDATE","INSERT","SELECT","ALTER"],ans:0,
+ expl:"UPDATE modifies existing data: UPDATE students SET age=20 WHERE id=1. Always use WHERE to target specific rows! INSERT adds new rows. SELECT reads. ALTER modifies table structure (schema), not data rows."},
+
+// ── SET 4 (Q61-Q80) ──
+{q:"A primary key must be:",
+ opts:["Duplicate","Null","Unique","Optional"],ans:2,
+ expl:"A primary key uniquely identifies each row and must be: (1) UNIQUE — no two rows share a value, and (2) NOT NULL — every row must have one. A table can have only one primary key."},
+{q:"A foreign key is used to:",
+ opts:["Delete rows","Create relation between tables","Drop table","Rename table"],ans:1,
+ expl:"A foreign key in one table references the primary key of another table, creating relationships and enforcing referential integrity. It prevents orphan records — you can't add an order for a non-existent customer."},
+{q:"MVC stands for:",
+ opts:["Model View Controller","Main View Controller","Model Virtual Controller","Model View Component"],ans:0,
+ expl:"MVC = Model-View-Controller. Model = data/business logic. View = presentation (JSP/HTML). Controller = request handling (Servlet). This separation makes code organised, testable, and scalable."},
+{q:"In MVC, business logic is handled by:",
+ opts:["View","Model","Controller","Browser"],ans:1,
+ expl:"The Model handles business logic — rules for calculating bills, validating data, processing orders, interacting with the database. In Java, Models are typically JavaBeans or Service classes."},
+{q:"In MVC, the presentation layer is:",
+ opts:["Model","View","Controller","Database"],ans:1,
+ expl:"The View is the presentation layer — it displays data to the user. In Java web apps, Views are typically JSP files. A good View contains no business logic; it only handles display."},
+{q:"Which is an example of View in Java Web?",
+ opts:["Servlet","JSP","JDBC","Filter"],ans:1,
+ expl:"JSP is the View in Java MVC. Servlets are Controllers. JDBC is for database access (part of Model). Filters handle pre/post-processing (like authentication) — not part of the View layer."},
+{q:"Which is an example of a Controller in Java Web MVC?",
+ opts:["Servlet","JSP","SQL","HTML"],ans:0,
+ expl:"Servlets act as Controllers. They receive requests, validate input, call Model methods, and forward results to a JSP (View). JSP = View, SQL = query language, HTML = markup language."},
+{q:"Session data is stored on the:",
+ opts:["Browser","Server","Database only","HTML page"],ans:1,
+ expl:"Sessions are stored on the SERVER. The browser only receives a session ID (usually as JSESSIONID cookie). On each request, the browser sends the ID, and the server looks up the session data. Sensitive data stays on the server."},
+{q:"Cookies are stored on the:",
+ opts:["Server","Browser","JVM","Database"],ans:1,
+ expl:"Cookies are stored in the BROWSER (client side). The server sends a cookie in the response; the browser saves it and sends it back on future requests to the same server. Unlike sessions, cookies are client-side and can be inspected by users."},
+{q:"The default cookie age is:",
+ opts:["0","1 hour","Session only","Infinite"],ans:2,
+ expl:"By default, cookies are session-only — they are deleted when the browser closes. Use cookie.setMaxAge(seconds) to persist them beyond the session. setMaxAge(0) immediately deletes the cookie."},
+{q:"Which method deletes a cookie?",
+ opts:["setAge(0)","deleteCookie()","removeCookie()","destroyCookie()"],ans:0,
+ expl:"To delete a cookie, set its max age to 0: cookie.setMaxAge(0), then add it to the response. The browser immediately expires it. deleteCookie(), removeCookie(), and destroyCookie() don't exist in the Cookie API."},
+{q:"Which method invalidates a session?",
+ opts:["invalidate()","destroy()","remove()","close()"],ans:0,
+ expl:"session.invalidate() destroys the session, removes all attributes, and marks it invalid. Called during logout. destroy(), remove(), close() are not HttpSession methods (destroy() is for Servlet/Filter lifecycle)."},
+{q:"Hidden form fields are used for:",
+ opts:["Styling","Session tracking","Database connection","File upload"],ans:1,
+ expl:"Hidden form fields (<input type='hidden'>) are a session tracking technique — they pass data between pages without showing it to the user. However, they're visible in the HTML source, so they're not truly secure."},
+{q:"URL rewriting is used for:",
+ opts:["Session tracking","SQL query","MVC","JDBC"],ans:0,
+ expl:"URL rewriting appends the session ID to URLs (e.g., /page?sessionid=abc123) as a session tracking fallback when cookies are disabled. Use response.encodeURL(url) in Java to apply it automatically."},
+{q:"HTML is:",
+ opts:["Server-side","Client-side","Database language","Java package"],ans:1,
+ expl:"HTML is client-side — it runs and is rendered in the browser. HTML defines the structure/content of pages but cannot connect to databases or execute business logic. Server-side technologies generate HTML and send it to the browser."},
+{q:"JSP executes on the:",
+ opts:["Browser","Server","Database","Client machine"],ans:1,
+ expl:"JSP executes on the SERVER. The web container processes the JSP (runs Java code, queries DB, builds HTML), then sends the final HTML to the browser. The browser only sees HTML, never the JSP source."},
+{q:"JavaScript is:",
+ opts:["Server-side only","Client-side primarily","Database language","Servlet language"],ans:1,
+ expl:"JavaScript is primarily client-side — it runs in the browser and makes pages interactive. With Node.js it can also run server-side, so 'primarily' is correct. It's unrelated to Java despite the similar name."},
+{q:"MySQL default port is:",
+ opts:["1521","8080","3306","5432"],ans:2,
+ expl:"MySQL = port 3306. Oracle DB = port 1521. Apache Tomcat / alt HTTP = port 8080. PostgreSQL = port 5432. MySQL JDBC URL: jdbc:mysql://localhost:3306/databasename."},
+{q:"Which SQL command removes an entire table?",
+ opts:["DELETE","REMOVE","DROP","CLEAR"],ans:2,
+ expl:"DROP TABLE removes the entire table including its structure and all data. DELETE removes only data rows but keeps the structure. TRUNCATE removes all rows but keeps the structure. REMOVE and CLEAR are not valid SQL."},
+{q:"Which of the following is NOT a session tracking technique?",
+ opts:["Cookies","Hidden Fields","URL Rewriting","JDBC"],ans:3,
+ expl:"JDBC (Java Database Connectivity) is for connecting to databases — NOT a session tracking technique. The four session tracking techniques are: Cookies, URL Rewriting, Hidden Form Fields, and HttpSession."},
+
+// ── SET 5 — AI-Generated (Q81-Q100) ──
+{q:"Which JSP implicit object is of type HttpServletResponse?",
+ opts:["request","out","response","session"],ans:2,
+ expl:"The 'response' implicit object is of type HttpServletResponse. It is used to send data back to the client — set headers, set content type, redirect, or get the output writer. The 'request' object is HttpServletRequest."},
+{q:"What is the main purpose of the <%@ page %> directive in JSP?",
+ opts:["Import tag libraries","Include other files","Set page-level attributes","Declare methods"],ans:2,
+ expl:"The <%@ page %> directive sets page-level attributes such as language, contentType, session, errorPage, isErrorPage, import, etc. The <%@ taglib %> imports libraries and <%@ include %> includes files."},
+{q:"Which HttpServletResponse method sets the MIME content type?",
+ opts:["setType()","setContentType()","addContentType()","writeType()"],ans:1,
+ expl:"response.setContentType(String type) sets the MIME type of the response. For HTML pages, you'd call response.setContentType('text/html'). For JSON, 'application/json'. This must be called before getting the output writer."},
+{q:"What does the JDBC URL 'jdbc:mysql://localhost:3306/mydb' represent?",
+ opts:["An FTP connection","A MySQL database connection","An Oracle connection","An HTTP connection"],ans:1,
+ expl:"This JDBC URL establishes a connection to a MySQL database. 'jdbc' is the protocol, 'mysql' is the sub-protocol (driver), 'localhost:3306' is the host and port, and 'mydb' is the database name. Oracle uses jdbc:oracle:thin:@..."},
+{q:"Which JSTL tag is used to store a value in a variable?",
+ opts:["<c:var>","<c:define>","<c:set>","<c:assign>"],ans:2,
+ expl:"<c:set var='name' value='${expr}'/> stores a value in a named variable (or attribute). Example: <c:set var='total' value='${price * qty}'/>. <c:var>, <c:define>, <c:assign> don't exist in JSTL."},
+{q:"What is the scope of the 'application' implicit object in JSP?",
+ opts:["Page scope","Request scope","Session scope","Application scope"],ans:3,
+ expl:"The 'application' implicit object has application scope — data stored in it is accessible by ALL users and ALL pages across the entire web application. It persists as long as the application is running."},
+{q:"Which annotation on a servlet class enables file upload processing?",
+ opts:["@FileUpload","@MultipartConfig","@Upload","@FormData"],ans:1,
+ expl:"The @MultipartConfig annotation (javax.servlet.annotation.MultipartConfig) must be placed on a servlet class to enable it to handle multipart/form-data requests (file uploads). Without it, request.getPart() returns null."},
+{q:"Which ResultSet method moves the cursor to the next row?",
+ opts:["nextRow()","moveNext()","next()","forward()"],ans:2,
+ expl:"ResultSet.next() moves the cursor forward one row and returns true if there is a row, false if no more rows. Typical usage: while(rs.next()) { String name = rs.getString('name'); }. nextRow(), moveNext(), forward() don't exist."},
+{q:"What does response.sendRedirect(url) do?",
+ opts:["Forwards the request server-side","Sends the client to a new URL via HTTP 302","Closes the session","Sends only response headers"],ans:1,
+ expl:"sendRedirect() sends an HTTP 302 response to the browser, instructing it to make a new request to the given URL. The URL changes in the browser. Unlike forward(), it creates new request/response objects."},
+{q:"What is the default HTTP method for an HTML form if no method is specified?",
+ opts:["POST","GET","PUT","DELETE"],ans:1,
+ expl:"The default HTML form method is GET. If you don't specify method='post', the form data is sent as URL query parameters (visible in the address bar). Use POST for sensitive data like passwords."},
+{q:"What is autoboxing in Java?",
+ opts:["Automatically creating arrays","Auto-converting a primitive to its wrapper class","Loading classes automatically","Garbage collection of objects"],ans:1,
+ expl:"Autoboxing is Java's automatic conversion of a primitive type to its corresponding wrapper class (e.g., int → Integer) when required. Unboxing is the reverse. Example: List<Integer> list = new ArrayList<>(); list.add(5); — the 5 is autoboxed to Integer."},
+{q:"Which JSTL tag removes a scoped variable?",
+ opts:["<c:delete>","<c:clear>","<c:remove>","<c:unset>"],ans:2,
+ expl:"<c:remove var='name' scope='session'/> removes a variable from the specified scope (page, request, session, or application). <c:delete>, <c:clear>, <c:unset> don't exist in JSTL."},
+{q:"What is the traditional way to load a JDBC driver?",
+ opts:["Driver.load('com.mysql.jdbc.Driver')","Class.forName('com.mysql.jdbc.Driver')","DriverManager.load('...')","JDBC.register('...')"],ans:1,
+ expl:"Class.forName('com.mysql.jdbc.Driver') dynamically loads the JDBC driver class, which registers it with DriverManager. In JDBC 4.0+, this is automatic (driver auto-loads from classpath), but older code often includes it explicitly."},
+{q:"The <%! %> declaration tag in JSP declares:",
+ opts:["Instance variables and methods at class level","HTML output","SQL queries","CSS styles"],ans:0,
+ expl:"<%! %> declares instance variables and methods at the class level of the generated servlet — outside the service() method. This means they are shared across all requests. Compare with <% %> (scriptlet, inside service())."},
+{q:"Which JSP implicit object is ONLY available on error pages?",
+ opts:["request","out","exception","config"],ans:2,
+ expl:"The 'exception' implicit object (java.lang.Throwable) is only available in JSP pages designated as error pages with isErrorPage='true' in the page directive. It holds the exception that was thrown."},
+{q:"A key advantage of PreparedStatement over Statement is:",
+ opts:["Compiles SQL only once and prevents SQL injection","Prints results faster","Works without a Connection","Doesn't need JDBC driver"],ans:0,
+ expl:"PreparedStatement precompiles the SQL (improving performance on repeated execution) AND uses parameterized queries which prevent SQL injection attacks. Statement is vulnerable to SQL injection and recompiles every time."},
+{q:"Which method of HttpServletRequest returns all request parameters as a Map?",
+ opts:["getParameters()","getParameterMap()","getAllParams()","parameterList()"],ans:1,
+ expl:"request.getParameterMap() returns a Map<String, String[]> of all request parameters. Each key is a parameter name and the value is an array of strings (since a parameter can have multiple values). getParameters() doesn't exist."},
+{q:"What is ServletContext?",
+ opts:["Configuration for one servlet only","A shared context object for the entire web application","An object representing request data","A container for HTTP response headers"],ans:1,
+ expl:"ServletContext is shared across the ENTIRE web application — all servlets and JSPs can access it. It provides application-wide configuration, shared attributes, and access to resources. Contrast with ServletConfig, which is per-servlet."},
+{q:"Which JSTL tag is used to catch exceptions?",
+ opts:["<c:error>","<c:exception>","<c:catch>","<c:try>"],ans:2,
+ expl:"<c:catch var='e'> ... </c:catch> catches exceptions thrown inside its body and stores them in the variable 'e'. It's JSTL's equivalent of a try-catch block. <c:error>, <c:exception>, <c:try> don't exist in JSTL."},
+{q:"Which SQL clause is used to filter rows in a SELECT statement?",
+ opts:["ORDER BY","GROUP BY","WHERE","HAVING"],ans:2,
+ expl:"WHERE filters individual rows based on a condition: SELECT * FROM students WHERE age > 18. ORDER BY sorts results. GROUP BY groups rows for aggregate functions. HAVING filters groups (used with GROUP BY)."},
+
+// ── SET 6 — AI-Generated Challenge (Q101-Q120) ──
+{q:"A JSP page is ultimately compiled into what?",
+ opts:["A static HTML file","A Servlet","A JavaScript file","An XML document"],ans:1,
+ expl:"When a browser first requests a JSP, the web container translates it into a Servlet Java class, compiles it, and runs it. On subsequent requests, the compiled servlet is reused (until the JSP changes). This is why JSP is a server-side technology."},
+{q:"Which ResultSet method retrieves a column value as a String?",
+ opts:["getString()","getColumn()","getValue()","fetchString()"],ans:0,
+ expl:"rs.getString(columnName) or rs.getString(columnIndex) retrieves a column value as a String. Other typed getters include getInt(), getDouble(), getDate(). getColumn(), getValue(), fetchString() don't exist in the JDBC API."},
+{q:"What does the @Override annotation mean in Java?",
+ opts:["Creates a new method","Indicates method overloading","Marks that a method overrides a parent class method","Marks a method as final"],ans:2,
+ expl:"@Override tells the compiler the method is intended to override a method from the superclass. If the signature doesn't match any parent method, the compiler throws an error — helping catch typos. It doesn't change runtime behaviour."},
+{q:"Connection pooling primarily improves:",
+ opts:["User interface appearance","Application security","Application performance","CSS styling"],ans:2,
+ expl:"Connection pooling pre-creates and reuses database connections instead of creating a new one for every request. Creating a connection is expensive (network handshake, authentication). Pooling dramatically improves performance under load."},
+{q:"Which interface does HttpServlet ultimately implement?",
+ opts:["Runnable","Serializable","Servlet","HttpInterface"],ans:2,
+ expl:"HttpServlet extends GenericServlet, which implements the Servlet interface. So HttpServlet ultimately implements Servlet. The Servlet interface defines the core lifecycle methods: init(), service(), and destroy()."},
+{q:"In JSP EL, ${empty myList} evaluates to true when:",
+ opts:["The list has items","The list is null or empty","The list has exactly one item","Always"],ans:1,
+ expl:"The EL 'empty' operator returns true if the value is null, an empty string, an empty array, an empty List, or an empty Map. It returns false for non-null, non-empty collections. Very useful for conditional rendering."},
+{q:"Which JSTL tag structure is equivalent to Java's switch-case statement?",
+ opts:["<c:switch>","<c:when>","<c:choose>","<c:case>"],ans:2,
+ expl:"<c:choose> contains <c:when test='${condition}'> (like 'case') and <c:otherwise> (like 'default'). Together they implement if/else-if/else logic. <c:switch>, <c:case> don't exist. <c:when> cannot be used alone."},
+{q:"Which method automatically appends the session ID to a URL for URL rewriting?",
+ opts:["request.encode(url)","response.encodeURL(url)","session.encode(url)","URL.encode(url)"],ans:1,
+ expl:"response.encodeURL(url) appends the session ID to the URL if cookies are disabled. You should always use this for links in your application to support clients without cookies: <a href='<%= response.encodeURL(\"page.jsp\") %>'>link</a>"},
+{q:"Which HTTP status code means 'Not Found'?",
+ opts:["200","301","403","404"],ans:3,
+ expl:"HTTP 404 = Not Found (resource doesn't exist). 200 = OK (success). 301 = Moved Permanently (redirect). 403 = Forbidden (no permission). Other common ones: 500 = Internal Server Error, 401 = Unauthorized."},
+{q:"What is the correct signature of doGet() in a Servlet?",
+ opts:["void doGet(Request req)","protected void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException","String doGet()","int doGet(Request req, Response res)"],ans:1,
+ expl:"The full signature is: protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException. You override this method in your servlet to handle GET requests."},
+{q:"The JSTL 'fmt' tag library is primarily used for:",
+ opts:["Looping through collections","Conditional rendering","Number/date formatting and internationalization (i18n)","SQL database operations"],ans:2,
+ expl:"The JSTL Formatting library (prefix: fmt) handles number formatting (<fmt:formatNumber>), date formatting (<fmt:formatDate>), and internationalization (<fmt:message> for locale-specific text). Core (c) = logic, sql = database."},
+{q:"Which Java keyword creates a new object instance?",
+ opts:["create","new","make","object"],ans:1,
+ expl:"The 'new' keyword allocates memory for a new object and calls its constructor. Example: HttpSession session = new... — wait, HttpSession is an interface. But for a class: Car car = new Car(). 'create', 'make', 'object' are not Java keywords."},
+{q:"Inside a JSP expression tag <%= %>, you should:",
+ opts:["End with a semicolon","Include a return statement","NOT use a semicolon","Use curly braces"],ans:2,
+ expl:"JSP expression tags do NOT use semicolons: <%= username %> not <%= username; %>. The tag evaluates the expression and outputs the result directly. Semicolons are used in scriptlet tags <% ... ; %> for statement endings."},
+{q:"Which JSP scope is the widest (longest-lived and most broadly accessible)?",
+ opts:["page","request","session","application"],ans:3,
+ expl:"Scopes from narrowest to widest: page (current page only) → request (single HTTP request) → session (one user's session across requests) → application (all users, entire app lifetime). Application scope data is shared by everyone."},
+{q:"response.getWriter() returns which type of object?",
+ opts:["BufferedReader","PrintWriter","InputStream","Scanner"],ans:1,
+ expl:"response.getWriter() returns a PrintWriter object, which you use to write text/HTML output to the browser. For binary output (images, PDFs), use response.getOutputStream() instead, which returns a ServletOutputStream."},
+{q:"HTTP being 'stateless' means:",
+ opts:["It remembers every previous request","It has no HTTP headers","Each request is independent — the server doesn't remember previous requests","It uses UDP instead of TCP"],ans:2,
+ expl:"HTTP is stateless: each request is completely independent. The server has no built-in memory of past requests. This is why session tracking techniques (Cookies, HttpSession, URL rewriting, hidden fields) are needed to maintain user state."},
+{q:"Which JDBC object holds the rows returned by a SELECT query?",
+ opts:["Statement","Connection","ResultSet","DriverManager"],ans:2,
+ expl:"ResultSet holds the data returned by a SELECT query. You iterate through it with rs.next() and retrieve column values with rs.getString(), rs.getInt(), etc. Statement executes queries; Connection manages the DB connection; DriverManager creates connections."},
+{q:"What does <%@ taglib uri='...' prefix='c' %> do in JSP?",
+ opts:["Imports a Java class","Makes the JSTL Core library available on the page","Defines the error page","Sets the character encoding"],ans:1,
+ expl:"The taglib directive imports a tag library (in this case JSTL Core with prefix 'c') and makes its tags available on the page. Without this directive, tags like <c:if> would be treated as unknown HTML."},
+{q:"In the MVC pattern used in Java web apps, the Servlet acts as the:",
+ opts:["Model","View","Controller","Database"],ans:2,
+ expl:"Servlet = Controller. It receives requests, validates input, calls the appropriate Model (Java classes/JDBC for business logic/data), then forwards results to the View (JSP) using RequestDispatcher.forward(). It's the 'traffic director'."},
+{q:"What is the correct order to close JDBC resources?",
+ opts:["Connection → Statement → ResultSet","ResultSet → Statement → Connection","Statement → ResultSet → Connection","Any order is fine"],ans:1,
+ expl:"Always close in reverse order of creation: ResultSet first, then Statement, then Connection. This ensures no resource leaks. Modern Java uses try-with-resources for automatic closing. Closing Connection first could orphan open ResultSets."},
+];
+
+// ── STATE ──
+let currentSet = 0;
+let answered = {};  // qIndex -> chosenOptionIndex
+let submitted = false;
+let scores = {}; // setId -> {score, total}
+
+// ── RENDER HOME ──
+function renderHome() {
+  const grid = document.getElementById('setsGrid');
+  grid.innerHTML = '';
+  SETS.forEach(s => {
+    const sc = scores[s.id];
+    const card = document.createElement('div');
+    card.className = 'set-card' + (sc ? ' completed' : '');
+    card.style.setProperty('--card-color', s.color);
+    card.innerHTML = `
+      <div class="set-num">SET ${s.id+1} · 20 QUESTIONS${s.ai ? '<span class="ai-tag">AI+</span>' : ''}</div>
+      <div class="set-title">${s.title.split('—')[1].trim()}</div>
+      <div class="set-meta">${s.desc}</div>
+      ${sc ? `<div class="set-score-badge">${sc.score}/${sc.total}</div>` : ''}
+    `;
+    card.onclick = () => startSet(s.id);
+    grid.appendChild(card);
+  });
+}
+
+// ── START SET ──
+function startSet(setId) {
+  currentSet = setId;
+  answered = {};
+  submitted = false;
+
+  document.getElementById('home').style.display = 'none';
+  document.getElementById('results').style.display = 'none';
+  document.getElementById('quiz').style.display = 'block';
+
+  const set = SETS[setId];
+  document.getElementById('quizTitleBar').textContent = set.title;
+  document.getElementById('setTitle').textContent = set.title;
+  document.getElementById('setDesc').textContent = set.desc;
+
+  const qs = Q.slice(setId * 20, setId * 20 + 20);
+  const wrap = document.getElementById('questionsWrap');
+  wrap.innerHTML = '';
+
+  qs.forEach((q, i) => {
+    const globalIdx = setId * 20 + i;
+    const block = document.createElement('div');
+    block.className = 'question-block';
+    block.id = `qb-${i}`;
+
+    const optLetters = ['A','B','C','D'];
+    const optHtml = q.opts.map((o, oi) => `
+      <button class="option" id="opt-${i}-${oi}" onclick="selectAnswer(${i}, ${oi}, ${globalIdx})" data-qi="${i}" data-oi="${oi}">
+        <span class="opt-letter">${optLetters[oi]}</span>
+        <span>${escHtml(o)}</span>
+      </button>
+    `).join('');
+
+    block.innerHTML = `
+      <div class="q-number">Q${globalIdx+1}</div>
+      <div class="q-text">${escHtml(q.q)}</div>
+      <div class="options" id="opts-${i}">${optHtml}</div>
+      <div class="explanation" id="expl-${i}">
+        <div class="expl-header" id="explhdr-${i}">EXPLANATION</div>
+        <div id="explbody-${i}">${escHtml(q.expl)}</div>
+      </div>
+    `;
+    wrap.appendChild(block);
+  });
+
+  updateProgress();
+  document.getElementById('submitBtn').disabled = true;
+  document.getElementById('submitBtn').textContent = 'CHECK ANSWERS';
+  document.getElementById('footerInfo').textContent = 'Select answers for all 20 questions';
+  window.scrollTo(0, 0);
+}
+
+function escHtml(s) {
+  return String(s)
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;');
+}
+
+// ── SELECT ANSWER ──
+function selectAnswer(qi, oi, globalIdx) {
+  if (submitted) return;
+  answered[qi] = oi;
+
+  // Update visual: deselect others, select this
+  const q = Q[globalIdx];
+  for (let j = 0; j < q.opts.length; j++) {
+    const btn = document.getElementById(`opt-${qi}-${j}`);
+    if (btn) {
+      btn.classList.remove('selected-correct','selected-wrong','show-correct');
+      btn.style.borderColor = '';
+      btn.style.background = '';
+      btn.style.color = '';
+    }
+  }
+  const chosen = document.getElementById(`opt-${qi}-${oi}`);
+  if (chosen) {
+    chosen.style.borderColor = '#5b8cff';
+    chosen.style.background = '#0f1628';
+    chosen.style.color = '#7aa3ff';
+  }
+
+  updateProgress();
+  const total = Object.keys(answered).length;
+  document.getElementById('footerInfo').textContent = `${total} / 20 answered`;
+  document.getElementById('submitBtn').disabled = total < 20;
+}
+
+// ── PROGRESS ──
+function updateProgress() {
+  const total = Object.keys(answered).length;
+  const pct = (total / 20) * 100;
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressText').textContent = `${total} / 20`;
+}
+
+// ── CHECK ANSWERS ──
+function checkAnswers() {
+  submitted = true;
+  document.getElementById('submitBtn').disabled = true;
+  document.getElementById('submitBtn').textContent = 'CHECKED ✓';
+
+  let score = 0;
+  const qs = Q.slice(currentSet * 20, currentSet * 20 + 20);
+
+  qs.forEach((q, i) => {
+    const chosen = answered[i];
+    const correct = q.ans;
+    const block = document.getElementById(`qb-${i}`);
+    const expl = document.getElementById(`expl-${i}`);
+    const explhdr = document.getElementById(`explhdr-${i}`);
+
+    // Disable all options
+    for (let j = 0; j < q.opts.length; j++) {
+      const btn = document.getElementById(`opt-${qi(i, j)}`);
+      if (btn) btn.disabled = true;
+    }
+
+    // Show correct option
+    const correctBtn = document.getElementById(`opt-${i}-${correct}`);
+    if (correctBtn) {
+      correctBtn.style.borderColor = '';
+      correctBtn.style.background = '';
+      correctBtn.style.color = '';
+      correctBtn.classList.add('show-correct');
+    }
+
+    if (chosen === correct) {
+      score++;
+      block.classList.add('correct');
+      expl.classList.add('show', 'correct-expl');
+      explhdr.textContent = '✓ CORRECT';
+      // mark chosen
+      const chosenBtn = document.getElementById(`opt-${i}-${chosen}`);
+      if (chosenBtn) chosenBtn.classList.add('selected-correct');
+    } else {
+      block.classList.add('incorrect');
+      expl.classList.add('show', 'wrong-expl');
+      explhdr.textContent = `✗ WRONG — Correct: ${['A','B','C','D'][correct]}`;
+      // mark chosen wrong
+      if (chosen !== undefined) {
+        const chosenBtn = document.getElementById(`opt-${i}-${chosen}`);
+        if (chosenBtn) chosenBtn.classList.add('selected-wrong');
+      }
+    }
+  });
+
+  scores[currentSet] = { score, total: 20 };
+  document.getElementById('footerInfo').textContent = `Score: ${score}/20 — scroll up to review`;
+
+  // Show results after a delay
+  setTimeout(() => showResults(score, qs), 600);
+}
+
+function qi(i, j) { return `${i}-${j}`; }
+
+// ── RESULTS ──
+function showResults(score, qs) {
+  document.getElementById('quiz').style.display = 'none';
+  document.getElementById('results').style.display = 'block';
+  document.getElementById('resultsTitleBar').textContent = SETS[currentSet].title;
+
+  const pct = Math.round((score / 20) * 100);
+  document.getElementById('scoreBig').textContent = `${score}/20`;
+  document.getElementById('scoreLabel').textContent = `${pct}%`;
+
+  // Animate ring
+  const circumference = 2 * Math.PI * 58;
+  const arc = document.getElementById('scoreArc');
+  const offset = circumference * (1 - score / 20);
+  const color = score >= 16 ? '#4ade80' : score >= 12 ? '#fbbf24' : '#f87171';
+  arc.style.stroke = color;
+  setTimeout(() => { arc.style.strokeDashoffset = offset; }, 100);
+
+  // Title
+  let title, sub;
+  if (pct >= 90) { title = "Excellent Work! 🏆"; sub = "You've mastered this set. Ready for the next challenge."; }
+  else if (pct >= 70) { title = "Good Job! 👏"; sub = "Solid understanding. Review the wrong answers below."; }
+  else if (pct >= 50) { title = "Keep Studying 📚"; sub = "More practice needed. Read all explanations carefully."; }
+  else { title = "More Practice Needed 💪"; sub = "Don't worry — review each explanation and try again."; }
+
+  document.getElementById('resultsTitle').textContent = title;
+  document.getElementById('resultsSub').textContent = sub;
+  document.getElementById('scoreArc').style.stroke = color;
+
+  // Wrong answers list
+  const wrongList = document.getElementById('wrongList');
+  const wrongQs = [];
+  qs.forEach((q, i) => {
+    if (answered[i] !== q.ans) {
+      wrongQs.push({ q, i, chosen: answered[i] });
+    }
+  });
+
+  if (wrongQs.length === 0) {
+    wrongList.innerHTML = `<div style="text-align:center;color:#4ade80;font-family:'Space Mono',monospace;font-size:0.8rem;padding:1rem;">PERFECT SCORE — ALL CORRECT!</div>`;
+  } else {
+    const letters = ['A','B','C','D'];
+    wrongList.innerHTML = `<h3>REVIEW WRONG ANSWERS (${wrongQs.length})</h3>` +
+      wrongQs.map(({q, i, chosen}) => `
+        <div class="wrong-item">
+          <div class="wrong-item-q">${escHtml(q.q)}</div>
+          <div class="wrong-item-ans">✓ Correct: ${letters[q.ans]}. ${escHtml(q.opts[q.ans])}</div>
+          ${chosen !== undefined ? `<div style="font-family:'Space Mono',monospace;font-size:0.7rem;color:#f87171;margin-bottom:0.4rem">✗ Your answer: ${letters[chosen]}. ${escHtml(q.opts[chosen])}</div>` : ''}
+          <div class="wrong-item-expl">${escHtml(q.expl)}</div>
+        </div>
+      `).join('');
+  }
+  window.scrollTo(0, 0);
+}
+
+// ── RETRY ──
+function retrySet() {
+  startSet(currentSet);
+}
+
+// ── GO HOME ──
+function goHome() {
+  document.getElementById('quiz').style.display = 'none';
+  document.getElementById('results').style.display = 'none';
+  document.getElementById('home').style.display = 'flex';
+  renderHome();
+  window.scrollTo(0, 0);
+}
+
+// ── INIT ──
+renderHome();
+</script>
+</body>
+</html>
