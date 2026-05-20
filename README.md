@@ -9,4 +9,4 @@ This project is a static site. Vercel can deploy it without a build step.
 3. Leave the build command empty.
 4. Deploy.
 
-The included `vercel.json` rewrites `/` to `java_web_quiz.html`, so the quiz opens from the site root after deployment.
+The site now includes a root `index.html`, so Vercel will serve the quiz directly from `/`.
